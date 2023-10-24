@@ -7,6 +7,7 @@ float Fs_Hz = 2000;    // Sampling frequency and execution time
 //con serial_plotter = 1, se alcanza 3200Hz con 1 sensor, 1700Hz con 2 sensores, 1100 con 3 sensores 
 //con serial_plotter = 0, se alcanza 3500hz con 2 sensores llega , 3 sensores 2400 Hz, 4 sens 1800 Hz
 float Ts_us = 1000000/Fs_Hz;    // Sampling period in microsec 2400hz
+//it takes about 100 us for analogRead(), so max fs is 10kHz
 long executing_time_us = 0; //
 //int state = 0; //
  //int value = 0;
@@ -25,7 +26,8 @@ long executing_time_us = 0; //
 void setup() 
 {
   //pinMode(2, OUTPUT);
-  analogReference(EXTERNAL); //connect aref to 3v3
+  //analogReference(INTERNAL);
+ analogReference(EXTERNAL); //connect aref to 3v3
   pinMode(12, OUTPUT); //output at pin12 to measure execution time
   pinMode(13, OUTPUT); // inboard LED, alarma cuando no logro execution time
   Serial.begin(250000);//115200);//250000);//9600);//multiples of 250k has minumum error for 16MHz arduino clock
@@ -100,19 +102,20 @@ if (IN0 < 0) {
 
 //Timer sat
 //use onboard led to flash at 1 sec
+/*
 TIMER_SEG_MAX = TIMER_SEG_MAX + (1/Fs_Hz);  
 TIMER_SEG_MIN = TIMER_SEG_MIN + (1/Fs_Hz);  
 if (TIMER_SEG_MIN<=1)  digitalWrite(13, LOW);   //turn off onboard led
 if (TIMER_SEG_MIN>1)  digitalWrite(13, HIGH);   //turn on onboard led
 if (TIMER_SEG_MIN>=2)  TIMER_SEG_MIN = 0;
-
-//set output at 2ms, to check execution time
+*/
+//set output at 1ms, to check execution time
 if (pin12 == LOW) {
   pin12 = HIGH;
-  digitalWrite(12, pin12);   //turn off on board led
+  digitalWrite(12, pin12);    
 }else{
   pin12 = LOW;
-  digitalWrite(12, pin12);   //turn off on board led
+  digitalWrite(12, pin12);   
 }
 
 //set fixed execution time----------------------------------------------------------------------------------------------------
@@ -122,6 +125,6 @@ if (pin12 == LOW) {
 
   //Delay to ensure defined fixed execution time
   while (micros() - executing_time_us < Ts_us) {  }
-  executing_time_us = micros();
+  executing_time_us = micros()-16;//15.7
  // digitalWrite(2, HIGH);
  }
